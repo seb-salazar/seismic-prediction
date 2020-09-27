@@ -13,6 +13,7 @@ import csv
 import requests
 import re
 import time
+import os
 import datetime
 
 now = datetime.datetime.now()
@@ -27,34 +28,30 @@ for year in years:
     for month in months:
         for day in days:
 
-            url = 'http://sismologia.cl/events/listados/' + str(year) + '/' + str(month).zfill(2) + '/' +  str(year) + str(month).zfill(2) + str(day).zfill(2)  + '.html'
+            url = 'http://sismologia.cl/events/listados/' + str(year) + '/' + str(month).zfill(2) + '/' \
+                    +  str(year) + str(month).zfill(2) + str(day).zfill(2)  + '.html'
 
             r = requests.get(url)
 
-            #to check the status of the request
-            print(r)
-
+            print(r)        #to check the status of the request
 
             if '<table>' in r.text:
 
                 headerRe = re.findall(('<th>'
                             '(.*?)</th></tr>'),
-                                r.text, re.DOTALL
-                                )
+                                r.text, re.DOTALL)
 
                 header = headerRe[0].split("</th><th>")
 
                 #to get daily seismic data
                 dailySeismsRe = re.findall(('target="centro">'
                                         '(.*?)</td></tr>'),
-                                            r.text, re.DOTALL
-                                            )
+                                            r.text, re.DOTALL)
 
                 #for using multiple splits
                 dailySeisms = [re.split('</a></td><td>|</td><td>', line) for line in dailySeismsRe]
 
                 #...path to where to store the data
-
                 pathToDataFolder = ''
                 pathToSave = pathToDataFolder + '/' + str(year) +'/'+ str(month) 
 
@@ -74,3 +71,4 @@ for year in years:
                             writer = csv.writer(file)
                             writer.writerow(header)
                             writer.writerows(dailySeisms)
+
